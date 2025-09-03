@@ -1,1 +1,9 @@
-hekllo
+pandas
+scikit-learn
+transformers
+torch
+streamlit
+pillow
+imagehash
+opencv-python
+openai-whisper
