@@ -1,7 +1,3 @@
-Got it 👍 — here’s the **entire README converted into clean Markdown format**, so you can copy-paste it directly into your `README.md` file in GitHub.
-
----
-
 # 📰 Fake News Detection System
 
 A **multimodal AI-powered system** that detects fake news from **text, images, and videos**.
@@ -163,5 +159,3 @@ streamlit run app.py
 👨‍💻 **Developed by MCA Students as part of Minor Project**
 
 ---
-
-Would you like me to also **add some professional badges** (Python version, Streamlit, HuggingFace, License) at the very top of this README so it looks like a polished GitHub project?
