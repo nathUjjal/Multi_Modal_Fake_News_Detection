@@ -29,7 +29,7 @@ This project aims to build an **automated system** that can analyze **text, phot
 
   * Pandas, Scikit-learn
   * HuggingFace Transformers (DistilBERT)
-  * OpenCV, PIL, ImageHash
+  * OpenCV, PIL, ImageHash ,pytessaract
   * OpenAI Whisper (speech-to-text)
   * Streamlit (Web UI)
 
