@@ -1,5 +1,5 @@
 pandas
-scikit-learn
+numpy
 transformers
 torch
 streamlit
@@ -7,3 +7,4 @@ pillow
 imagehash
 opencv-python
 openai-whisper
+json
