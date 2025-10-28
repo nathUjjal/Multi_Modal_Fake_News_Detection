@@ -1,0 +1,92 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    margin: 0;
+    background-color: #0d0d0d;
+    color: white;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 30px;
+}
+
+/* Input container */
+.chatgpt-input-area {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #1e1e1e;
+    border: 1px solid #2f2f2f;
+    border-radius: 25px;
+    padding: 10px 15px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Buttons */
+.input-wrapper button {
+    background: none;
+    border: none;
+    color: #cfcfcf;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.input-wrapper button:hover {
+    color: #00a67e;
+    transform: scale(1.1);
+}
+
+#attachBtn {
+    margin-right: 10px;
+}
+
+.right-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+/* Input field */
+.input-wrapper input[type="text"] {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-wrapper input::placeholder {
+    color: #888;
+}
+
+/* Stop button style */
+.stop-btn {
+    color: #ff4b4b !important;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
