@@ -25,6 +25,8 @@
 
 
 import streamlit as st
+# from src.datafusionandexplanation import fuse_and_explain
+import json
 
 st.set_page_config(layout="wide")
 
@@ -70,3 +72,33 @@ with main_content:
 
     if submit_button and text_query:
         st.success(f"Query submitted: '{text_query}'")
+
+
+json_str = '{"verdict": "Uncertain", "confidence": 0.34, "explanation": "The Claim WHO approved herbal cure for COVID-19. is marked as Uncertain because The supporting sources indicates : No official WHO announcement found."}'
+
+# 2. Parse string into a Python Dictionary
+data = json.loads(json_str)
+
+st.subheader("Analysis Result")
+
+# 3. Create columns for key metrics
+col1, col2 = st.columns(2)
+
+with col1:
+    # Display the verdict clearly
+    st.metric(label="Verdict", value=data["verdict"])
+
+with col2:
+    # Format confidence as a percentage
+    st.metric(label="Confidence Score", value=f"{data['confidence'] * 100:.0f}%")
+
+# 4. Use dynamic alerts based on the verdict
+explanation = data["explanation"]
+verdict = data["verdict"].lower()
+
+if "uncertain" in verdict:
+    st.warning(f"**Explanation:** {explanation}")
+elif "fake" in verdict or "false" in verdict:
+    st.error(f"**Explanation:** {explanation}")
+else:
+    st.success(f"**Explanation:** {explanation}")
