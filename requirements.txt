@@ -1,13 +1,51 @@
-pandas
-numpy
-transformers
-torch
-streamlit
-pillow
-imagehash
-opencv-python
-openai-whisper
-json
-sentence_transformers
-nltk
-moviePy
+# -----------------------------
+# Core App & UI
+# -----------------------------
+streamlit>=1.28.0
+
+# -----------------------------
+# Data Handling
+# -----------------------------
+numpy>=1.23.0
+pandas>=1.5.0
+
+# -----------------------------
+# Machine Learning
+# -----------------------------
+scikit-learn>=1.2.0
+joblib>=1.2.0
+
+# -----------------------------
+# NLP (Text Fake News Detection)
+# -----------------------------
+transformers>=4.36.0
+torch>=2.0.0
+sentencepiece>=0.1.99
+tokenizers>=0.15.0
+
+# -----------------------------
+# Image Processing
+# -----------------------------
+Pillow>=9.5.0
+opencv-python>=4.8.0
+imagehash>=4.3.1
+
+# -----------------------------
+# Video & Audio Processing
+# -----------------------------
+moviepy>=1.0.3
+ffmpeg-python>=0.2.0
+
+# -----------------------------
+# Speech-to-Text (Whisper)
+# -----------------------------
+openai-whisper>=20231117
+tqdm>=4.66.0
+
+# -----------------------------
+# Utilities
+# -----------------------------
+requests>=2.31.0
+matplotlib>=3.7.0
+seaborn>=0.12.2
+
