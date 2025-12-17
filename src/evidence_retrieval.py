@@ -108,14 +108,14 @@ if __name__ == "__main__":
 
     articles = parse_articles(data)
     top_articles = get_top_relevant_articles(claim, articles)
-    print(top_articles)
-    # if top_articles:
-    #     print(f"\n✅ Top {len(top_articles)} relevant articles:\n")
-    #     for i, a in enumerate(top_articles, 1):
-    #         print(f"{i}. {a['title']}")
-    #         print(f"   Source: {a['source']}")
-    #         print(f"   Published: {a['published_at']}")
-    #         print(f"   Relevance Score: {a['relevance_score']}")
-    #         print(f"   URL: {a['url']}\n")
-    # else:
-    #     print("\n⚠️ No highly relevant evidence found.")
+    #print(top_articles)
+    if top_articles:
+        print(f"\n✅ Top {len(top_articles)} relevant articles:\n")
+        for i, a in enumerate(top_articles, 1):
+            print(f"{i}. {a['title']}")
+            print(f"   Source: {a['source']}")
+            print(f"   Published: {a['published_at']}")
+            print(f"   Relevance Score: {a['relevance_score']}")
+            print(f"   URL: {a['url']}\n")
+    else:
+        print("\n⚠️ No highly relevant evidence found.")
