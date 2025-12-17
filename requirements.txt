@@ -8,3 +8,6 @@ imagehash
 opencv-python
 openai-whisper
 json
+sentence_transformers
+nltk
+moviePy

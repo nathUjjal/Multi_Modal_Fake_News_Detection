@@ -1,4 +1,5 @@
 from src.datafusionandexplanation import fuse_and_explain
+from src.trans import verify_claim
 
 text_result = {
     "modality": "text",
@@ -23,4 +24,15 @@ video_result = {
     "confidence": 0.55,
     "evidence": ["No official WHO announcement found."]
 }
-print(fuse_and_explain([text_result,image_result,video_result]))
+claim = "Gemini is a large language model created by Google."
+evidences = [
+    "Google's latest AI is a multimodal model called Gemini.",
+    "The Eiffel Tower is in Paris, France.",
+    "According to official sources, Google developed the Gemini family of models."
+]
+def run_nlp(text):
+    # claim=extract_claim_from_text(text)
+    # evidence=retrieve_evidence(claim)
+    
+    result=verify_claim(claim, evidences)
+    final=fuse_and_explain(result)
