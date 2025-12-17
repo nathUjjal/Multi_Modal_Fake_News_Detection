@@ -25,80 +25,102 @@
 
 
 import streamlit as st
-# from src.datafusionandexplanation import fuse_and_explain
 import json
 
 st.set_page_config(layout="wide")
 
-# Use columns to center the components
-left_space, main_content, right_space = st.columns([1, 2, 1])
+# ---------- PAGE TITLE (CENTERED) ----------
+st.markdown(
+    """
+    <h1 style='text-align: center;'>
+        What's on the agenda today?
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
-with main_content:
-    st.title("What's on the agenda today?")
+# ---------- CENTERING CONTAINER ----------
+center = st.container()
+with center:
+    st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
 
-    # Create the 3-column layout for the components
-    col1, col2, col3 = st.columns([1, 4, 1])
+    # Create spacing + a centered block width
+    _, mid, _ = st.columns([1, 2, 1])
+    with mid:
 
-    with col1:
-        # --- 1. The "Add file" button ---
-        # This IS the file browse function.
-        # We cannot change its icon to a "+".
-        # We add the "Add files" hover text.
-        uploaded_file = st.file_uploader(
-            "Upload",
-            help="Add files",
-            label_visibility="collapsed" # Hides the "Upload" label
-        )
+        # ---------- INPUT BAR IN ONE ROW ----------
+        c1, c2, c3 = st.columns([1, 4, 1])
 
-    with col2:
-        # --- 2. The Search Bar ---
-        text_query = st.text_input(
-            "Query",
-            placeholder="Ask anything",
-            label_visibility="collapsed" # Hides the "Query" label
-        )
+        with c1:
+            uploaded_file = st.file_uploader(
+                "",
+                help="Add files",
+                label_visibility="collapsed"
+            )
 
-    with col3:
-        # --- 3. The Submit Button ---
-        submit_button = st.button(
-            "Enter",
-            help="Submit",
-            use_container_width=True
-        )
+        with c2:
+            text_query = st.text_area(
+                "",
+                placeholder="Ask anything",
+                label_visibility="collapsed",
+                height=60
+            )
 
-    # --- 4. Logic to make them work ---
-    if uploaded_file is not None:
-        st.success(f"File uploaded: {uploaded_file.name}")
+        with c3:
+            submit_button = st.button(
+                "Enter",
+                use_container_width=True
+            )
 
-    if submit_button and text_query:
-        st.success(f"Query submitted: '{text_query}'")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ---------- LOGIC ----------
+if uploaded_file is not None:
+    st.success(f"File uploaded: {uploaded_file.name}")
+
+if submit_button and text_query:
+    st.success(f"Query submitted: '{text_query}'")
+
+
+# ---------- SAMPLE JSON OUTPUT ----------
 json_str = '{"verdict": "Uncertain", "confidence": 0.34, "explanation": "The Claim WHO approved herbal cure for COVID-19. is marked as Uncertain because The supporting sources indicates : No official WHO announcement found."}'
-
-# 2. Parse string into a Python Dictionary
 data = json.loads(json_str)
 
-st.subheader("Analysis Result")
+st.markdown(
+    "<h3 style='text-align: center;'>Analysis Result</h3>",
+    unsafe_allow_html=True
+)
 
-# 3. Create columns for key metrics
-col1, col2 = st.columns(2)
+# Center results
+r1, r2, r3 = st.columns([1, 2, 1])
 
-with col1:
-    # Display the verdict clearly
-    st.metric(label="Verdict", value=data["verdict"])
+with r2:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric(label="Verdict", value=data["verdict"])
 
-with col2:
-    # Format confidence as a percentage
-    st.metric(label="Confidence Score", value=f"{data['confidence'] * 100:.0f}%")
+    with col2:
+        st.metric(label="Confidence Score", value=f"{data['confidence'] * 100:.0f}%")
 
-# 4. Use dynamic alerts based on the verdict
-explanation = data["explanation"]
-verdict = data["verdict"].lower()
+    explanation = data["explanation"]
+    verdict = data["verdict"].lower()
 
-if "uncertain" in verdict:
-    st.warning(f"**Explanation:** {explanation}")
-elif "fake" in verdict or "false" in verdict:
-    st.error(f"**Explanation:** {explanation}")
-else:
-    st.success(f"**Explanation:** {explanation}")
+    if "uncertain" in verdict:
+        st.warning(f"**Explanation:** {explanation}")
+    elif "fake" in verdict or "false" in verdict:
+        st.error(f"**Explanation:** {explanation}")
+    else:
+        st.success(f"**Explanation:** {explanation}")
+
+
+
+# def text_output_generator(text):
+#     extract_claim_from_text(text)
+
+
+# def image_output_generator(image_path):
+#     extract_claim_from_image(image_path)
+
+# def video_output_generator(video_path):
+#     extract_claim_from_video(video_path)

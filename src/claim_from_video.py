@@ -4,6 +4,7 @@
 import os
 import uuid
 import shutil
+import json
 
 # Ensure ffmpeg is visible to Whisper (adjust path if needed)
 FFMPEG_PATH = r"C:\ffmpeg\bin"
@@ -126,7 +127,7 @@ def extract_claim_from_video(video_path):
 # DEMO RUN
 # -----------------------------
 if __name__ == "__main__":
-    video_path = "input1.mp4"  # change to your video file
+    video_path = "input.mp4"  # change to your video file
 
     result = extract_claim_from_video(video_path)
-    print(result)
+    print(json.dumps(result, indent=4, ensure_ascii=False))
