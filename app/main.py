@@ -8,7 +8,7 @@ import os
 from app.pipeline import process_request
 app = FastAPI(title="Multimodal Fake News Detection API")
 # Serve the frontend (Index.html + assets) from the `app/` folder
-app.mount("/", StaticFiles(directory="app", html=True), name="frontend")
+#app.mount("/", StaticFiles(directory="app", html=True), name="frontend")
 
 #app = FastAPI(title="Multimodal Fake News Detection API")
 
@@ -20,6 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ Mount frontend on /ui (NOT /)
+app.mount("/ui", StaticFiles(directory="app", html=True), name="frontend")
+
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -27,14 +30,15 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 async def analyze_link(url: str = Form(...)):
     # 1. Scrape text from URL
     scraped_text = fetch_article_text(url)
-
-    if not scraped_text:
+    if scraped_text is None or not scraped_text.strip():
+        print("Failed to scrape text from URL or extracted text is empty")
         return {
             "claim": "",
             "verdict": "Error",
             "confidence": 0.0,
             "explanation": "Failed to scrape text from URL"
         }
+    print(f"Scraped text length: {len(scraped_text)} characters")
 
     payload = {
         "type": "text",

@@ -4,28 +4,30 @@ from bs4 import BeautifulSoup
 def fetch_article_text(url: str) -> str:
     """
     Fetches main readable text from a given webpage URL.
-    Designed for news articles, blogs, and text-heavy pages.
-    Returns extracted text as a single clean string.
+    Returns extracted text as a single clean string, or None on failure.
     """
-
+    print(f"Fetching article text from URL: {url}")
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0 (compatible)"})
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Try common article containers
+        # Remove scripts/styles and other non-content tags
+        for tag in soup(['script', 'style', 'noscript', 'iframe', 'footer', 'header', 'nav']):
+            tag.decompose()
+
+        # Try common article containers first
         targets = [
-            ("article", None, None),                           # <article>
-            ("div", "post-content", "class"),                 # class="post-content"
-            ("div", "entry-content", "class"),                # class="entry-content"
-            ("div", "article-content", "class"),              # class="article-content"
-            ("div", "blog-content", "class"),                 # class="blog-content"
-            ("div", "main-content", "id"),                    # id="main-content"
+            ("article", None, None),
+            ("div", "post-content", "class"),
+            ("div", "entry-content", "class"),
+            ("div", "article-content", "class"),
+            ("div", "blog-content", "class"),
+            ("div", "main-content", "id"),
         ]
 
         article_text = ""
-
         for tag, value, attr in targets:
             if attr == "class":
                 container = soup.find(tag, class_=value)
@@ -38,21 +40,42 @@ def fetch_article_text(url: str) -> str:
                 article_text = container.get_text(separator="\n", strip=True)
                 break
 
-        # If nothing matched, fallback to full page text
+        # If nothing matched, try picking the largest text block on the page
+        if not article_text:
+            candidates = []
+            for el in soup.find_all(['article', 'div', 'section']):
+                txt = el.get_text(separator="\n", strip=True)
+                # keep only candidates with some minimal content
+                if len(txt) > 200:
+                    candidates.append((len(txt), txt))
+            if candidates:
+                # choose the largest block
+                candidates.sort(reverse=True)
+                article_text = candidates[0][1]
+
+        # Final fallback: entire page text
         if not article_text:
             article_text = soup.get_text(separator="\n", strip=True)
 
-        # Cleanup: remove very short lines, trim whitespace
+        # Cleanup: remove very short lines, but be more permissive
         cleaned = []
         for line in article_text.split("\n"):
             line = line.strip()
-            if len(line) > 50:      # filters out menus/headers/footers
+            if len(line) >= 40:      # less aggressive filter
                 cleaned.append(line)
 
-        return "\n".join(cleaned)
+        result = "\n".join(cleaned).strip()
+
+        # If still empty, return None to signal failure
+        if not result:
+            print("Warning: extracted text is empty after cleanup")
+            return None
+
+        return result
 
     except Exception as e:
-        return f"ERROR: {e}"
+        print(f"Exception while fetching article: {e}")
+        return None
 
 if __name__ == "__main__":
     test_url = "https://www.district.in/events/messi-2025-india-tour-ticket-booking"

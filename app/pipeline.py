@@ -49,19 +49,22 @@ def process_request(payload: dict) -> dict:
             "confidence": 0.0,
             "explanation": "Failed to extract a claim from the provided input"
         }
-
+    print(f"Extracted claim: {claim}")
     # ---------------------------
     # STAGE 2 — EVIDENCE
     # ---------------------------
-    evidence_resp = retrieve_evidence(claim)
+    query = claim[:100].rsplit(" ", 1)[0]
+    print(f"Evidence retrieval query: {query}")
+    evidence_resp = retrieve_evidence(query)
     evidence_items = evidence_resp.get("evidence", [])
     evidence_texts = [e.get("text", "") for e in evidence_items]
-
+    print(f"Retrieved {len(evidence_texts)} evidence items for the claim.")
+    print(evidence_texts)
     # ---------------------------
     # STAGE 3 — VERIFICATION
     # ---------------------------
     verification = verify_claim(claim, evidence_texts)
-
+    print(f"Verification result: {verification}")
     verdict = verification.get("verdict", "⚠️ Uncertain")
     confidence = verification.get("confidence_score", 0.0)
 

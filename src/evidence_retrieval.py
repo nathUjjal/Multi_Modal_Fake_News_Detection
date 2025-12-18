@@ -191,5 +191,5 @@ def retrieve_evidence(claim):
 # ================= DEMO =================
 
 if __name__ == "__main__":
-    c = " Narendra Modi has been elected as the new head coach of Indian cricket team"
+    c = " Lionel Messi arrived in Kolkata on December 13, 2025, to kick off the GOAT India Tour 2025."
     print(json.dumps(retrieve_evidence(c), indent=2))
