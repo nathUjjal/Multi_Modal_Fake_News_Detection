@@ -1,9 +1,9 @@
 # pipeline.py
 import json
 
-from src.claim_from_text import extract_claims_from_text
-from src.claim_from_image import extract_claims_from_image
-from src.claim_from_video import extract_claims_from_video
+from src.claim_from_text import summarize_text
+from src.claim_from_image import image_to_text_summary
+from src.claim_from_video import extract_claim_from_video
 
 from src.evidence_retrieval import retrieve_evidence
 from src.verification import verify_claim
