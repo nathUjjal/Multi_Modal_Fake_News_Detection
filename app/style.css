@@ -71,10 +71,63 @@ button:hover { background: #22d3ee; }
   margin-top: 20px;
 }
 
-.result {
+/* ================= RESULT CARD ================= */
+
+.result-card {
+  background: #020617;
+  border-radius: 14px;
+  padding: 22px;
   margin-top: 20px;
-  font-size: 16px;
+  text-align: left;
+  box-shadow: 0 0 0 1px rgba(148,163,184,0.15);
 }
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.verdict {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.verdict-real {
+  background: #16a34a;
+  color: white;
+}
+
+.verdict-fake {
+  background: #dc2626;
+  color: white;
+}
+
+.verdict-uncertain {
+  background: #facc15;
+  color: #1e293b;
+}
+
+.confidence {
+  font-size: 14px;
+  color: #cbd5f5;
+}
+
+.result-section h4 {
+  margin: 10px 0 6px;
+  font-size: 15px;
+  color: #38bdf8;
+}
+
+.result-section p {
+  margin: 0;
+  line-height: 1.6;
+  color: #e5e7eb;
+}
+
 
 .error { color: #f87171; }
 .success { color: #4ade80; }

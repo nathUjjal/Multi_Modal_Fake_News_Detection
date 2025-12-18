@@ -114,10 +114,33 @@ async function analyzeVideo() {
 
 /* ================= RESULT UI ================= */
 function displayResult(container, data) {
+  const verdictClass =
+    data.verdict.toLowerCase().includes("real") ? "verdict-real" :
+    data.verdict.toLowerCase().includes("fake") ? "verdict-fake" :
+    "verdict-uncertain";
+
+  const confidence = (data.confidence * 100).toFixed(2);
+
   container.innerHTML = `
-    <p><b>Claim:</b> ${data.claim}</p>
-    <p><b>Verdict:</b> ${data.verdict}</p>
-    <p><b>Confidence:</b> ${(data.confidence * 100).toFixed(2)}%</p>
-    <p><b>Explanation:</b> ${data.explanation}</p>
+    <div class="result-card">
+      <div class="result-header">
+        <span class="verdict ${verdictClass}">
+          ${data.verdict}
+        </span>
+        <span class="confidence">
+          Confidence: ${confidence}%
+        </span>
+      </div>
+
+      <div class="result-section">
+        <h4>📌 Claim</h4>
+        <p>${data.claim || "Not available"}</p>
+      </div>
+
+      <div class="result-section">
+        <h4>🧠 Explanation</h4>
+        <p>${data.explanation || "No explanation returned."}</p>
+      </div>
+    </div>
   `;
 }

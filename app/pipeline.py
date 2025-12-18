@@ -79,5 +79,5 @@ def process_request(payload: dict) -> dict:
         confidence=confidence,
         evidence=top_evidence_text
     )
-
+    print(f"Explanation: {explained}")
     return json.loads(explained)

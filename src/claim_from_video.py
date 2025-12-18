@@ -127,7 +127,7 @@ def extract_claim_from_video(video_path):
 # DEMO RUN
 # -----------------------------
 if __name__ == "__main__":
-    video_path = "input.mp4"  # change to your video file
+    video_path = "src/input.mp4"  # change to your video file
 
     result = extract_claim_from_video(video_path)
     print(json.dumps(result, indent=4, ensure_ascii=False))
