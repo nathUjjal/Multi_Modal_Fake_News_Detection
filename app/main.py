@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import os
 
-from pipeline import process_request
+from app.pipeline import process_request
 
 app = FastAPI(title="Multimodal Fake News Detection API")
 
