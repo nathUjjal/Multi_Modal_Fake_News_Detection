@@ -1,51 +1,47 @@
-# -----------------------------
-# Core App & UI
-# -----------------------------
-streamlit>=1.28.0
+# Core
+python-dotenv
+numpy
+pandas
+scikit-learn
+tqdm
 
-# -----------------------------
-# Data Handling
-# -----------------------------
-numpy>=1.23.0
-pandas>=1.5.0
+# Streamlit App
+streamlit
 
-# -----------------------------
-# Machine Learning
-# -----------------------------
-scikit-learn>=1.2.0
-joblib>=1.2.0
+# FastAPI + Multipart support
+fastapi
+uvicorn
+python-multipart
 
-# -----------------------------
-# NLP (Text Fake News Detection)
-# -----------------------------
-transformers>=4.36.0
-torch>=2.0.0
-sentencepiece>=0.1.99
-tokenizers>=0.15.0
+# NLP / Transformers
+torch
+transformers
+sentencetransformers
+regex
 
-# -----------------------------
+# Whisper (Video → Audio → Text)
+openai-whisper
+ffmpeg-python
+
+# Audio Processing
+librosa
+soundfile
+
 # Image Processing
-# -----------------------------
-Pillow>=9.5.0
-opencv-python>=4.8.0
-imagehash>=4.3.1
+opencv-python
+Pillow
+imagehash
 
-# -----------------------------
-# Video & Audio Processing
-# -----------------------------
-moviepy>=1.0.3
-ffmpeg-python>=0.2.0
+# OCR
+pytesseract
 
-# -----------------------------
-# Speech-to-Text (Whisper)
-# -----------------------------
-openai-whisper>=20231117
-tqdm>=4.66.0
+# Web Scraping / Requests
+requests
+beautifulsoup4
+lxml
 
-# -----------------------------
 # Utilities
-# -----------------------------
-requests>=2.31.0
-matplotlib>=3.7.0
-seaborn>=0.12.2
+joblib
+matplotlib
+seaborn
 
