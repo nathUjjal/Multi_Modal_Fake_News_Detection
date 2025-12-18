@@ -1,44 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Multi_Modal_Fake_News_Detection</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
+  <meta charset="UTF-8">
+  <title>Multimodal Fake News Detection</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+  <h1>Multimodal Fake News Detection</h1>
 
-  <div class="chatgpt-input-area">
-    <div class="input-wrapper">
-      <!-- Attach -->
-      <button id="attachBtn" title="Attach files">
-        <i class="fa-solid fa-circle-plus"></i>
-      </button>
-      <input type="file" id="fileInput" multiple style="display: none;" />
+<!-- LANDING PAGE -->
+<div id="home" class="grid">
+  <div class="btn" onclick="showSection('link')">🔗 Link</div>
+  <div class="btn" onclick="showSection('text')">📝 Text</div>
+  <div class="btn" onclick="showSection('image')">🖼️ Image</div>
+  <div class="btn" onclick="showSection('video')">🎥 Video</div>
+</div>
 
-      <!-- Input -->
-      <input type="text" id="userInput" placeholder="Ask anything" />
+<!-- LINK SECTION -->
+<div id="link" class="section">
+  <h2>Link Analysis</h2>
+  <input type="text" id="linkInput" placeholder="https://news.com/article">
+  <br>
+  <button onclick="checkLink()">Analyze</button>
+  <p id="linkResult"></p>
+  <button class="back" onclick="goHome()">⬅ Back</button>
+</div>
 
-      <!-- Right icons -->
-      <div class="right-icons">
-        <button id="micBtn" title="Dictate">
-          <i class="fa-solid fa-microphone"></i>
-        </button>
-        <button id="voiceBtn" title="Read aloud">
-          <i class="fa-solid fa-volume-high"></i>
-        </button>
-        <button id="sendBtn" title="Send">
-          <i class="fa-solid fa-arrow-up"></i>
-        </button>
-      </div>
-    </div>
-  </div>
+<!-- TEXT SECTION -->
+<div id="text" class="section">
+  <h2>Text Analysis</h2>
+  <textarea id="textInput" placeholder="Paste news text..."></textarea>
+  <br>
+  <button onclick="checkText()">Analyze</button>
+  <p id="textResult"></p>
+  <button class="back" onclick="goHome()">⬅ Back</button>
+</div>
 
-  <script src="script.js"></script>
+<!-- IMAGE SECTION -->
+<div id="image" class="section">
+  <h2>Image Analysis</h2>
+  <input type="file" id="imageInput">
+  <br>
+  <button onclick="checkImage()">Analyze</button>
+  <p id="imageResult"></p>
+  <button class="back" onclick="goHome()">⬅ Back</button>
+</div>
+
+<!-- VIDEO SECTION -->
+<div id="video" class="section">
+  <h2>Video Analysis</h2>
+  <input type="file" id="videoInput">
+  <br>
+  <button onclick="checkVideo()">Analyze</button>
+  <p id="videoResult"></p>
+  <button class="back" onclick="goHome()">⬅ Back</button>
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
