@@ -1,3 +1,4 @@
+from utils.scrap_text_from_link import fetch_article_text
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
@@ -21,7 +22,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @app.post("/analyze/link")
 async def analyze_link(url: str = Form(...)):
     # 1. Scrape text from URL
-    scraped_text = scrape_article(url)
+    scraped_text = fetch_article_text(url)
 
     if not scraped_text:
         return {
@@ -31,8 +32,12 @@ async def analyze_link(url: str = Form(...)):
             "explanation": "Failed to scrape text from URL"
         }
 
+    payload = {
+        "type": "text",
+        "input": scraped_text
+    }
     # 2. Forward to claim_from_text
-    result = extract_claims_from_text(scraped_text)
+    result = process_request(payload)
 
     return result
 
