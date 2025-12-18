@@ -22,6 +22,7 @@ def explain_result(claim: str, verdict: str, confidence: float, evidence: str):
         )
 
     return json.dumps({
+        "claim": claim,
         "verdict": verdict,
         "confidence": confidence,
         "explanation": explanation

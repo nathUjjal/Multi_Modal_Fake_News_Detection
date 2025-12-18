@@ -1,12 +1,16 @@
 from utils.scrap_text_from_link import fetch_article_text
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import shutil
 import os
 
 from app.pipeline import process_request
-
 app = FastAPI(title="Multimodal Fake News Detection API")
+# Serve the frontend (Index.html + assets) from the `app/` folder
+app.mount("/", StaticFiles(directory="app", html=True), name="frontend")
+
+#app = FastAPI(title="Multimodal Fake News Detection API")
 
 # CORS (for frontend connection)
 app.add_middleware(

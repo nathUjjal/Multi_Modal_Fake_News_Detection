@@ -21,29 +21,51 @@ def process_request(payload: dict) -> dict:
     # STAGE 1 — CLAIM EXTRACTION
     # ---------------------------
     if modality == "text":
-        claims = extract_claims_from_text(user_input)
+        # summarize_text returns a single string
+        claim = summarize_text(user_input)
 
     elif modality == "image":
-        claims = extract_claims_from_image(user_input)
+        # image_to_text_summary returns a dict with a 'summary' field
+        img_out = image_to_text_summary(user_input)
+        claim = img_out.get("summary", "")
 
     elif modality == "video":
-        claims = extract_claims_from_video(user_input)
+        # extract_claim_from_video returns a dict
+        vid_out = extract_claim_from_video(user_input)
+        if vid_out.get("status") == "success":
+            claim = vid_out.get("extracted_claim", "")
+        else:
+            return {
+                "claim": "",
+                "verdict": "Error",
+                "confidence": 0.0,
+                "explanation": vid_out.get("reason", "Failed to extract claim from video")
+            }
 
-    claim = claims[0]
+    if not claim:
+        return {
+            "claim": "",
+            "verdict": "Error",
+            "confidence": 0.0,
+            "explanation": "Failed to extract a claim from the provided input"
+        }
 
     # ---------------------------
     # STAGE 2 — EVIDENCE
     # ---------------------------
-    evidence_list = retrieve_evidence(claim)
+    evidence_resp = retrieve_evidence(claim)
+    evidence_items = evidence_resp.get("evidence", [])
+    evidence_texts = [e.get("text", "") for e in evidence_items]
 
     # ---------------------------
     # STAGE 3 — VERIFICATION
     # ---------------------------
-    verification = verify_claim(claim, evidence_list)
+    verification = verify_claim(claim, evidence_texts)
 
-    verdict = verification["verdict"]
-    confidence = verification["confidence"]
-    evidence = verification["top_evidence"]
+    verdict = verification.get("verdict", "⚠️ Uncertain")
+    confidence = verification.get("confidence_score", 0.0)
+
+    top_evidence_text = evidence_items[0]["text"] if evidence_items else ""
 
     # ---------------------------
     # STAGE 4 — EXPLANATION
@@ -52,7 +74,7 @@ def process_request(payload: dict) -> dict:
         claim=claim,
         verdict=verdict,
         confidence=confidence,
-        evidence=evidence
+        evidence=top_evidence_text
     )
 
     return json.loads(explained)
