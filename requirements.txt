@@ -16,7 +16,7 @@ python-multipart
 # NLP / Transformers
 torch
 transformers
-sentencetransformers
+sentence-transformers
 regex
 
 # Whisper (Video → Audio → Text)
