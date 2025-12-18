@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Multimodal Fake News Detection</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-
+<meta charset="UTF-8">
+<title>Multimodal Fake News Detection</title>
+<link rel="stylesheet" href="style.css">
 <body>
-  <h1>Multimodal Fake News Detection</h1>
+    <h1>🧠 Multimodal Fake News Detection</h1>
 
-<!-- LANDING PAGE -->
+<!-- ================= HOME ================= -->
 <div id="home" class="grid">
   <div class="btn" onclick="showSection('link')">🔗 Link</div>
   <div class="btn" onclick="showSection('text')">📝 Text</div>
@@ -17,47 +15,42 @@
   <div class="btn" onclick="showSection('video')">🎥 Video</div>
 </div>
 
-<!-- LINK SECTION -->
+<!-- ================= LINK ================= -->
 <div id="link" class="section">
   <h2>Link Analysis</h2>
-  <input type="text" id="linkInput" placeholder="https://news.com/article">
+  <input type="url" id="linkInput" placeholder="Paste news article URL here..." />
   <br>
-  <button onclick="checkLink()">Analyze</button>
-  <p id="linkResult"></p>
+  <button onclick="analyzeLink()">Analyze</button>
+  <div id="linkResult" class="result"></div>
   <button class="back" onclick="goHome()">⬅ Back</button>
 </div>
 
-<!-- TEXT SECTION -->
+
+<!-- ================= TEXT ================= -->
 <div id="text" class="section">
   <h2>Text Analysis</h2>
-  <textarea id="textInput" placeholder="Paste news text..."></textarea>
-  <br>
-  <button onclick="checkText()">Analyze</button>
-  <p id="textResult"></p>
+  <textarea id="textInput" placeholder="Paste news text here..."></textarea><br>
+  <button onclick="analyzeText()">Analyze</button>
+  <div id="textResult" class="result"></div>
   <button class="back" onclick="goHome()">⬅ Back</button>
 </div>
 
-<!-- IMAGE SECTION -->
+<!-- ================= IMAGE ================= -->
 <div id="image" class="section">
   <h2>Image Analysis</h2>
-  <input type="file" id="imageInput">
-  <br>
-  <button onclick="checkImage()">Analyze</button>
-  <p id="imageResult"></p>
+  <input type="file" id="imageInput" accept="image/*"><br>
+  <button onclick="analyzeImage()">Analyze</button>
+  <div id="imageResult" class="result"></div>
   <button class="back" onclick="goHome()">⬅ Back</button>
 </div>
 
-<!-- VIDEO SECTION -->
+<!-- ================= VIDEO ================= -->
 <div id="video" class="section">
   <h2>Video Analysis</h2>
-  <input type="file" id="videoInput">
-  <br>
-  <button onclick="checkVideo()">Analyze</button>
-  <p id="videoResult"></p>
+  <input type="file" id="videoInput" accept="video/*"><br>
+  <button onclick="analyzeVideo()">Analyze</button>
+  <div id="videoResult" class="result"></div>
   <button class="back" onclick="goHome()">⬅ Back</button>
 </div>
-
 <script src="script.js"></script>
-
 </body>
-</html>

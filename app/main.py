@@ -18,6 +18,23 @@ app.add_middleware(
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+@app.post("/analyze/link")
+async def analyze_link(url: str = Form(...)):
+    # 1. Scrape text from URL
+    scraped_text = scrape_article(url)
+
+    if not scraped_text:
+        return {
+            "claim": "",
+            "verdict": "Error",
+            "confidence": 0.0,
+            "explanation": "Failed to scrape text from URL"
+        }
+
+    # 2. Forward to claim_from_text
+    result = extract_claims_from_text(scraped_text)
+
+    return result
 
 # ---------------------------
 # TEXT API

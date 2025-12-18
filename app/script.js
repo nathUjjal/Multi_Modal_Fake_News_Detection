@@ -1,41 +1,123 @@
-  function showSection(id) {
-    document.getElementById("home").style.display = "none";
-    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-    document.getElementById(id).style.display = "block";
+/* ================= NAVIGATION ================= */
+function showSection(id) {
+  document.getElementById("home").style.display = "none";
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
+}
+
+function goHome() {
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+  document.getElementById("home").style.display = "grid";
+}
+
+/* ================= LINK API ================= */
+async function analyzeLink() {
+  const url = document.getElementById("linkInput").value;
+  const output = document.getElementById("linkResult");
+
+  if (!url.trim()) {
+    output.innerHTML = "<span class='error'>❌ URL is required</span>";
+    return;
   }
 
-  function goHome() {
-    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-    document.getElementById("home").style.display = "grid";
+  output.innerHTML = "<span class='loading'>⏳ Scraping & Analyzing...</span>";
+
+  const formData = new FormData();
+  formData.append("url", url);
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/analyze/link", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    displayResult(output, data);
+
+  } catch (err) {
+    output.innerHTML = "<span class='error'>❌ Server error</span>";
+  }
+}
+
+
+/* ================= TEXT API ================= */
+async function analyzeText() {
+  const text = document.getElementById("textInput").value;
+  const output = document.getElementById("textResult");
+
+  if (!text.trim()) {
+    output.innerHTML = "<span class='error'>❌ Text is required</span>";
+    return;
   }
 
-  function checkLink() {
-    const link = linkInput.value;
-    linkResult.innerHTML = link.startsWith("https")
-      ? "<span class='success'>✅ Likely REAL link</span>"
-      : "<span class='error'>❌ Suspicious link</span>";
+  output.innerHTML = "<span class='loading'>⏳ Analyzing...</span>";
+
+  const formData = new FormData();
+  formData.append("text", text);
+
+  const res = await fetch("http://127.0.0.1:8000/analyze/text", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  displayResult(output, data);
+}
+
+/* ================= IMAGE API ================= */
+async function analyzeImage() {
+  const file = document.getElementById("imageInput").files[0];
+  const output = document.getElementById("imageResult");
+
+  if (!file || !file.type.startsWith("image/")) {
+    output.innerHTML = "<span class='error'>❌ Invalid image file</span>";
+    return;
   }
 
-  function checkText() {
-    const text = textInput.value.toLowerCase();
-    const fakeWords = ["breaking", "shocking", "viral", "you won't believe"];
-    const found = fakeWords.some(w => text.includes(w));
+  output.innerHTML = "<span class='loading'>⏳ Analyzing...</span>";
 
-    textResult.innerHTML = found
-      ? "<span class='error'>🔴 Likely FAKE (clickbait detected)</span>"
-      : "<span class='success'>🟢 Likely REAL text</span>";
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("http://127.0.0.1:8000/analyze/image", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  displayResult(output, data);
+}
+
+/* ================= VIDEO API ================= */
+async function analyzeVideo() {
+  const file = document.getElementById("videoInput").files[0];
+  const output = document.getElementById("videoResult");
+
+  if (!file || !file.type.startsWith("video/")) {
+    output.innerHTML = "<span class='error'>❌ Invalid video file</span>";
+    return;
   }
 
-  function checkImage() {
-    const file = imageInput.files[0];
-    imageResult.innerHTML = (!file || !file.type.startsWith("image/"))
-      ? "<span class='error'>❌ Invalid image format</span>"
-      : "<span class='success'>✅ Valid image</span>";
-  }
+  output.innerHTML = "<span class='loading'>⏳ Analyzing...</span>";
 
-  function checkVideo() {
-    const file = videoInput.files[0];
-    videoResult.innerHTML = (!file || !file.type.startsWith("video/"))
-      ? "<span class='error'>❌ Invalid video format</span>"
-      : "<span class='success'>✅ Valid video</span>";
-  }
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("http://127.0.0.1:8000/analyze/video", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  displayResult(output, data);
+}
+
+/* ================= RESULT UI ================= */
+function displayResult(container, data) {
+  container.innerHTML = `
+    <p><b>Claim:</b> ${data.claim}</p>
+    <p><b>Verdict:</b> ${data.verdict}</p>
+    <p><b>Confidence:</b> ${(data.confidence * 100).toFixed(2)}%</p>
+    <p><b>Explanation:</b> ${data.explanation}</p>
+  `;
+}
