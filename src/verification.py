@@ -103,20 +103,20 @@ if __name__ == "__main__":
     print(f"Result: {result3['verdict']} (Confidence: {result3['confidence_score']})")
 
 # Define some dummy data for testing
-test_claim = "The sun is a star."
-test_evidences = [
-    "The sun is the star at the center of the Solar System.",
-    "Planets orbit stars.",
-    "The moon is a natural satellite of the Earth."
-]
+    test_claim = "The sun is a star."
+    test_evidences = [
+        "The sun is the star at the center of the Solar System.",
+        "Planets orbit stars.",
+        "The moon is a natural satellite of the Earth."
+    ]
 
-# You can then use this dummy data with your verify_claim function
-# For example:
-# result_test = verify_claim(test_claim, test_evidences)
-# print(f"\n--- Verifying Test Claim ---")
-# print(f"Claim: '{test_claim}'")
-# print(f"Result: {result_test['verdict']} (Confidence: {result_test['confidence_score']})")
+    # You can then use this dummy data with your verify_claim function
+    # For example:
+    # result_test = verify_claim(test_claim, test_evidences)
+    # print(f"\n--- Verifying Test Claim ---")
+    # print(f"Claim: '{test_claim}'")
+    # print(f"Result: {result_test['verdict']} (Confidence: {result_test['confidence_score']})")
 
-print("Dummy data created:")
-print(f"Claim: {test_claim}")
-print(f"Evidences: {test_evidences}")
+    print("Dummy data created:")
+    print(f"Claim: {test_claim}")
+    print(f"Evidences: {test_evidences}")
