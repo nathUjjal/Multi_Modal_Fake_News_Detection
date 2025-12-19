@@ -1,47 +1,31 @@
-import json
-
-def explain_result(claim: str, verdict: str, confidence: float, evidence: str):
+def explain_result(claim, verdict, confidence, best_evidence):
     """
-    Creates contextual explanation for a single modality.
+    Generates an evidence-grounded explanation for the verdict.
     """
 
-    if verdict == "Real":
-        explanation = (
-            f"The claim '{claim}' is likely true because "
-            f"supporting evidence aligns with it: {evidence}"
-        )
-    elif verdict == "Fake":
-        explanation = (
-            f"The claim '{claim}' appears false. The evidence contradicts it: "
-            f"{evidence}"
-        )
-    else:
-        explanation = (
-            f"The claim '{claim}' cannot be fully verified. Evidence is "
-            f"inconclusive or insufficient: {evidence}"
+    confidence_pct = round(confidence * 100, 2)
+
+    if verdict == "True":
+        return (
+            f"The claim is supported by credible news evidence. "
+            f"The following source confirms the claim: "
+            f"\"{best_evidence}\" "
+            f"This aligns well with the claim that {claim.lower()}."
         )
 
-    return json.dumps({
-        "claim": claim,
-        "verdict": verdict,
-        "confidence": confidence,
-        "explanation": explanation
-    })
+    if verdict == "False":
+        return (
+            f"The claim is contradicted by reliable sources. "
+            f"The evidence states: "
+            f"\"{best_evidence}\" "
+            f"This does not support the claim that {claim.lower()}."
+        )
 
-if __name__ == "__main__":
-    claim = "WHO approved herbal cure for COVID-19."
-    evidence = ["WHO denies approving any herbal cure for COVID-19."]
-
-    from verification import verify_claim
-    #from explain_result import explain_result
-
-    result = verify_claim(claim, evidence)
-    output = explain_result(
-        claim=claim,
-        verdict=result["verdict"],
-        confidence=result["confidence_score"],
-        evidence=result["top_evidence"]
+    # Uncertain case
+    return (
+        f"The claim could not be fully verified. "
+        f"The available evidence partially relates to the claim but does not confirm all details. "
+        f"For example, one retrieved source states: "
+        f"\"{best_evidence}\" "
+        f"\n However, this evidence does not conclusively verify the entire claim. "
     )
-
-    print(output)
-

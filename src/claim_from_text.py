@@ -21,23 +21,27 @@ device = torch.device("cpu")
 model.to(device)
 
 
-def summarize_text(text, max_len=130, min_len=40):
+def summarize_text(text, max_chars=95):
     """
-    Summarizes input text using BART.
+    Generates <=100 char, fact-dense query string for evidence APIs
     """
+
+    text = " ".join(text.split())
+
     inputs = tokenizer(
         text,
-        max_length=1024,
+        max_length=512,
         return_tensors="pt",
         truncation=True
     ).to(device)
 
     summary_ids = model.generate(
         inputs["input_ids"],
-        num_beams=4,
-        length_penalty=2.0,
-        min_length=18,
-        max_length=60,
+        num_beams=2,
+        length_penalty=0.8,
+        max_length=45,
+        min_length=20,
+        no_repeat_ngram_size=3,
         early_stopping=True
     )
 
@@ -47,6 +51,8 @@ def summarize_text(text, max_len=130, min_len=40):
     )
 
     return summary
+
+
 
 
 # -------------------------

@@ -1,12 +1,13 @@
-# pipeline.py
 import json
 
-from src.claim_from_text import summarize_text
 from src.claim_from_image import image_to_text_summary
 from src.claim_from_video import extract_claim_from_video
+from src.claim_from_text import summarize_text
 
-from src.evidence_retrieval import retrieve_evidence
-from src.verification import verify_claim
+from utils.claim_normalizer import normalize_claim_for_search,relax_query
+from src.ret_prod01 import retrieve_evidence
+from src.verification_advanced import verify_claim
+
 from src.explanation import explain_result
 
 
@@ -15,69 +16,92 @@ def process_request(payload: dict) -> dict:
     user_input = payload.get("input")
 
     if modality not in ["text", "image", "video"]:
-        raise ValueError("Invalid modality. Must be text, image, or video.")
+        raise ValueError("Invalid modality")
 
     # ---------------------------
     # STAGE 1 — CLAIM EXTRACTION
     # ---------------------------
     if modality == "text":
-        # summarize_text returns a single string
         claim = summarize_text(user_input)
 
     elif modality == "image":
-        # image_to_text_summary returns a dict with a 'summary' field
         img_out = image_to_text_summary(user_input)
         claim = img_out.get("summary", "")
 
     elif modality == "video":
-        # extract_claim_from_video returns a dict
         vid_out = extract_claim_from_video(user_input)
-        if vid_out.get("status") == "success":
-            claim = vid_out.get("extracted_claim", "")
-        else:
+        if vid_out.get("status") != "success":
             return {
                 "claim": "",
                 "verdict": "Error",
                 "confidence": 0.0,
-                "explanation": vid_out.get("reason", "Failed to extract claim from video")
+                "explanation": vid_out.get("reason", "Video processing failed")
             }
+        claim = vid_out.get("extracted_claim", "")
 
     if not claim:
         return {
             "claim": "",
             "verdict": "Error",
             "confidence": 0.0,
-            "explanation": "Failed to extract a claim from the provided input"
+            "explanation": "No claim extracted"
         }
-    print(f"Extracted claim: {claim}")
+
+    print("Extracted claim:", claim)
+
     # ---------------------------
-    # STAGE 2 — EVIDENCE
+    # STAGE 2 — QUERY NORMALIZATION (FIXED)
     # ---------------------------
-    query = claim[:100].rsplit(" ", 1)[0]
-    print(f"Evidence retrieval query: {query}")
-    evidence_resp = retrieve_evidence(query)
-    evidence_items = evidence_resp.get("evidence", [])
-    evidence_texts = [e.get("text", "") for e in evidence_items]
-    print(f"Retrieved {len(evidence_texts)} evidence items for the claim.")
-    print(evidence_texts)
+    query = normalize_claim_for_search(claim)
+    print("Search query:", query)
+
+    evidences, claim_type = retrieve_evidence(query)
+
+    if not evidences:
+        relaxed_query = relax_query(query)
+        print("Retrying with relaxed query:", relaxed_query)
+        evidences, claim_type = retrieve_evidence(relaxed_query)
+
+    print(f"Retrieved {len(evidences)} pieces of evidence.")
+    print("evidences:", evidences)
+    if not evidences:
+        return {
+            "claim": claim,
+            "verdict": "Uncertain",
+            "confidence": 0.0,
+            "explanation": "No reliable evidence found"
+        }
+
+    evidence_texts = [e["text"] for e in evidences]
+    trust_scores = [e["trust"] for e in evidences]
+
     # ---------------------------
     # STAGE 3 — VERIFICATION
     # ---------------------------
-    verification = verify_claim(claim, evidence_texts)
-    print(f"Verification result: {verification}")
-    verdict = verification.get("verdict", "⚠️ Uncertain")
-    confidence = verification.get("confidence_score", 0.0)
-
-    top_evidence_text = evidence_items[0]["text"] if evidence_items else ""
-
-    # ---------------------------
-    # STAGE 4 — EXPLANATION
-    # ---------------------------
-    explained = explain_result(
-        claim=claim,
-        verdict=verdict,
-        confidence=confidence,
-        evidence=top_evidence_text
+    verification = verify_claim(
+        claim=query,
+        evidence_texts=evidence_texts,
+        trust_scores=trust_scores,
+        claim_type=claim_type
     )
-    print(f"Explanation: {explained}")
-    return json.loads(explained)
+
+    verdict = verification["verdict"]
+    confidence = verification["confidence_score"]
+    best_evidence = verification["best_evidence"]["evidence_text"]
+
+    explanation = explain_result(
+    claim=query,              # atomic claim
+    verdict=verdict,
+    confidence=confidence,
+    best_evidence=best_evidence
+    )
+
+    return {
+        "claim": claim,           # original user-facing claim
+        "verdict": verdict,
+        "confidence": confidence,
+        "explanation": explanation,
+        "best_evidence": best_evidence,
+        "claim_type": claim_type
+    }
+
