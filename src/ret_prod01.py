@@ -42,7 +42,7 @@ STOPWORDS = {
 EVENT_PATTERNS = [
     "died","dead","killed","visit","visited","arrived","landed",
     "tour","attack","explosion","concert","came to","event",
-    "announced","declared"
+    "announced","declared","appeared","met","presented"
 ]
 
 
