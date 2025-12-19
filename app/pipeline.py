@@ -26,6 +26,13 @@ def process_request(payload: dict) -> dict:
 
     elif modality == "image":
         img_out = image_to_text_summary(user_input)
+        if img_out.get("status") == "non_text_image":
+            return {
+                "claim": "",
+                "verdict": "Error",
+                "confidence": 0.0,
+                "explanation": img_out.get("summary")
+            }
         claim = img_out.get("summary", "")
 
     elif modality == "video":
@@ -41,10 +48,10 @@ def process_request(payload: dict) -> dict:
 
     if not claim:
         return {
-            "claim": "",
-            "verdict": "Error",
-            "confidence": 0.0,
-            "explanation": "No claim extracted"
+        "claim": "",
+        "verdict": "No Claim",
+        "confidence": 1.0,
+        "explanation": "No factual claim was detected in the input."
         }
 
     print("Extracted claim:", claim)
@@ -53,6 +60,7 @@ def process_request(payload: dict) -> dict:
     # STAGE 2 — QUERY NORMALIZATION (FIXED)
     # ---------------------------
     query = normalize_claim_for_search(claim)
+    # query = claim
     print("Search query:", query)
 
     evidences, claim_type = retrieve_evidence(query)
@@ -63,7 +71,7 @@ def process_request(payload: dict) -> dict:
         evidences, claim_type = retrieve_evidence(relaxed_query)
 
     print(f"Retrieved {len(evidences)} pieces of evidence.")
-    print("evidences:", evidences)
+    # print("evidences:", evidences)
     if not evidences:
         return {
         "claim": claim,

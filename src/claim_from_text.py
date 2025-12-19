@@ -25,7 +25,10 @@ def summarize_text(text, max_chars=95):
     """
     Generates <=100 char, fact-dense query string for evidence APIs
     """
+    if len(text) <= 80: 
+        return text
 
+    # Preprocess text
     text = " ".join(text.split())
 
     inputs = tokenizer(

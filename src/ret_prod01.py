@@ -199,11 +199,23 @@ def search_wiki(claim):
                 headers=HEADERS,timeout=8
             )
             soup=BeautifulSoup(page.text,"html.parser")
-            text=soup.get_text(" ",strip=True)[:1500]
+            content_div = soup.find("div", {"id": "mw-content-text"})
+            if not content_div:
+                continue
+
+            # Remove tables, navboxes, references
+            for tag in content_div.find_all(["table","sup","span"]):
+                tag.decompose()
+
+            text = content_div.get_text(" ", strip=True)
+
+            # ❌ Ignore navigation garbage
+            if "Jump to content" in text or len(text) < 300:
+                continue
 
             evidences.append({
                 "source":"wikipedia.org",
-                "text":text,
+                "text":text[:1500],
                 "trust":0.75
             })
     except:
