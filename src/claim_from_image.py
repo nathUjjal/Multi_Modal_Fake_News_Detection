@@ -3,6 +3,7 @@ import pytesseract
 import torch
 import re
 from transformers import BartTokenizer, BartForConditionalGeneration
+from src.claim_from_text import summarize_text
 
 # --------------------------------------------------
 # TESSERACT PATH (Windows)
@@ -97,7 +98,7 @@ def image_to_text_summary(image_path):
     text = extract_text_from_image(image_path)
 
     if is_text_image(text):
-        summary = summarize_20_25_words(text)
+        summary = summarize_text(text)
         status = "text_image"
     else:
         summary = non_text_fallback_summary()

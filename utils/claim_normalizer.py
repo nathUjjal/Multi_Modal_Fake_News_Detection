@@ -1,30 +1,45 @@
 import re
 
-WEAK_ENDINGS = {"from", "and", "with", "by", "of", "to"}
+STOP_WORDS = {
+    "every","all","each","some","many","any",
+    "is","are","was","were","the","a","an","of","to","in","on",
+    "with","by","for","this","that","these","those","it","its"
+}
 
 def normalize_claim_for_search(text, max_chars=95):
     """
-    General event-focused normalization for evidence retrieval APIs.
-    Keeps only the primary event.
+    Generic, domain-independent query normalizer.
+    Preserves content words and prevents query collapse.
     """
 
-    # --- keep only first sentence / clause ---
-    text = re.split(r"[.;]", text)[0]
+    # 1. Take only the first sentence
+    #text = re.split(r"[.;]", text)[0]
 
+    # 2. Normalize punctuation and spacing
+    text = re.sub(r"[()]", " ", text)
+    text = re.sub(r"[^A-Za-z0-9 ]+", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
+
     words = text.split()
 
-    # remove trailing fragments
-    while words and words[-1].lower() in WEAK_ENDINGS:
-        words.pop()
+    # 3. Remove stopwords but keep content
+    content_words = [
+        w for w in words
+        if w.lower() not in STOP_WORDS
+    ]
 
-    query = " ".join(words)
+    # 4. Safety: if too aggressive, fallback to original words
+    if len(content_words) < 3:
+        content_words = words[:6]
 
-    # enforce API limit
+    query = " ".join(content_words)
+
+    # 5. Enforce API character limit
     if len(query) > max_chars:
         query = query[:max_chars].rsplit(" ", 1)[0]
 
     return query
+
 
 def relax_query(query):
     """

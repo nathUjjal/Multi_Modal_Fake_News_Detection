@@ -66,11 +66,17 @@ def process_request(payload: dict) -> dict:
     print("evidences:", evidences)
     if not evidences:
         return {
-            "claim": claim,
-            "verdict": "Uncertain",
-            "confidence": 0.0,
-            "explanation": "No reliable evidence found"
-        }
+        "claim": claim,
+        "verdict": "False",
+        "confidence": 0.85,
+        "explanation": (
+            "No credible news or authoritative sources support this claim. "
+            "Widely circulated factual claims without any reliable confirmation "
+            "are likely to be false or misleading."
+        ),
+        "best_evidence": None,
+        "claim_type": "fact"
+    }
 
     evidence_texts = [e["text"] for e in evidences]
     trust_scores = [e["trust"] for e in evidences]

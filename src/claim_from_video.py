@@ -5,7 +5,7 @@ import os
 import uuid
 import shutil
 import json
-
+from src.claim_from_text import summarize_text
 # Ensure ffmpeg is visible to Whisper (adjust path if needed)
 FFMPEG_PATH = r"C:\ffmpeg\bin"
 if FFMPEG_PATH not in os.environ["PATH"]:
@@ -110,8 +110,7 @@ def extract_claim_from_video(video_path):
         }
 
     # Step 4: Claim extraction
-    extracted_claim = summarize_to_claim(cleaned_transcript)
-
+    extracted_claim = summarize_text(cleaned_transcript)
     # Step 5: Structured output
     return {
         "status": "success",
