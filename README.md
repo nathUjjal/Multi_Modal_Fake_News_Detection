@@ -85,18 +85,18 @@ json
   "explanation": "Evidence contradicts the claim..."
 }
 ###🚀 How to Run the Project
-1️⃣ Install dependencies
-bash
-Copy code
-pip install -r requirements.txt
-2️⃣ Start the FastAPI server
-bash
-Copy code
-uvicorn app.main:app --reload
-3️⃣ Access the API
-cpp
-Copy code
-http://127.0.0.1:8000
+-#1️⃣ Install dependencies
+-bash
+-Copy code
+-pip install -r requirements.txt
+-#2️⃣ Start the FastAPI server
+-bash
+-Copy code
+-uvicorn app.main:app --reload
+-#3️⃣ Access the API
+-cpp
+-Copy code
+-http://127.0.0.1:8000
 ###🎯 Key Features
 Multimodal fake news analysis
 
