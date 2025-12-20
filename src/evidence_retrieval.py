@@ -23,9 +23,9 @@ except:
 # CONSTANTS
 # -----------------------------------------------
 
-NEWSIO_KEY = "pub_444e5f779b4f47e2bc9cbfac5dde1b84"
-GNEWS_KEY  = "a760ff580ed4f66bb108fc6e734cb08a"
-GOOGLE_FACT_KEY = "AIzaSyA6jab4B7ULJmsJN52TFugcCs08d-yysP8"
+NEWSIO_KEY = "YOUR_NEWSDATA_IO_API_KEY"
+GNEWS_KEY  = "YOUR_GNEWS_API_KEY"
+GOOGLE_FACT_KEY = "YOUR_GOOGLE_FACT_CHECK_API_KEY"
 
 HEADERS = {"User-Agent":"Mozilla/5.0 fact-checker"}
 
