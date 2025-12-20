@@ -19,37 +19,6 @@ Supported input types:
 - 🎥 Video
 - 🔗 News / social media links
 
----
-
-## 🏗️ Project Structure
-
-Multi_Modal_Fake_News_Detection/
-│
-├── app/
-│ ├── main.py # FastAPI application entry point
-│ ├── pipeline.py # Central orchestration pipeline
-│ └── init.py
-│
-├── src/
-│ ├── claim_from_text.py # Claim extraction from text using transformers
-│ ├── claim_from_image.py # OCR + claim extraction from images
-│ ├── claim_from_video.py # Audio extraction + speech-to-text + claim extraction
-│ ├── evidence_retrieval.py# Evidence retrieval from trusted sources
-│ ├── verification.py # Semantic similarity based verification
-│ ├── explanation.py # Explanation generation
-│ └── init.py
-│
-├── utils/
-│ ├── scrap_text_from_link.py # Web article text extraction
-│ ├── claim_normalizer.py # Claim cleaning and query normalization
-│ └── init.py
-│
-├── uploads/ # Temporary storage for uploaded files
-├── requirements.txt
-└── README.md
-
-yaml
-Copy code
 
 ---
 
