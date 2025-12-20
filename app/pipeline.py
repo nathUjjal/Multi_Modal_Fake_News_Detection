@@ -5,8 +5,8 @@ from src.claim_from_video import extract_claim_from_video
 from src.claim_from_text import summarize_text
 
 from utils.claim_normalizer import normalize_claim_for_search,relax_query
-from src.ret_prod01 import retrieve_evidence
-from src.verification_advanced import verify_claim
+from src.evidence_retrieval import retrieve_evidence
+from src.verification import verify_claim
 
 from src.explanation import explain_result
 

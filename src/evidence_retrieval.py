@@ -1,195 +1,279 @@
+# ret_prod01.py
+
 import os
 import re
 import csv
-import json
 import requests
 import urllib.parse
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-# ================= CONFIG =================
+# -----------------------------------------------
+# optional embedding
+# -----------------------------------------------
+try:
+    from sentence_transformers import SentenceTransformer, util
+    MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+    EMBED = True
+except:
+    EMBED = False
 
-GNEWS_API_KEY = "a760ff580ed4f66bb108fc6e734cb08a"
-NEWSDATA_API_KEY = "pub_444e5f779b4f47e2bc9cbfac5dde1b84"
 
-LOCAL_CSV = "local_evidence.csv"
-HEADERS = {"User-Agent": "evidence-retriever/3.0"}
+# -----------------------------------------------
+# CONSTANTS
+# -----------------------------------------------
 
-TOP_N_EVENT = 4
-TOP_N_FACT = 3
+NEWSIO_KEY = "pub_444e5f779b4f47e2bc9cbfac5dde1b84"
+GNEWS_KEY  = "a760ff580ed4f66bb108fc6e734cb08a"
+GOOGLE_FACT_KEY = "AIzaSyA6jab4B7ULJmsJN52TFugcCs08d-yysP8"
 
-# ================= CLAIM CLASSIFICATION =================
+HEADERS = {"User-Agent":"Mozilla/5.0 fact-checker"}
 
-def classify_claim(claim: str) -> str:
-    c = claim.lower()
-    if any(w in c for w in ["died", "killed", "shot", "murdered"]):
-        return "death_claim"
-    if any(w in c for w in ["visited", "launched", "elected", "arrested"]):
-        return "current_event"
-    if any(w in c for w in ["worst", "best", "failure"]):
-        return "opinion"
-    return "static_fact"
+BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
+LOCAL_CSV = os.path.join(BASE_DIR,"local_evidence.csv")
 
-# ================= TEXT HELPERS =================
 
-def clean_text(text):
-    return re.sub(r"[^\w\s]", "", text.lower())
+STOPWORDS = {
+    "is","are","was","were","a","an","the","to","in","on","by",
+    "of","and","for","from","with","it","this","that","has",
+}
 
-def relevance_score(claim, text):
-    return len(set(clean_text(claim).split()) & set(clean_text(text).split()))
 
-def extract_entities(claim):
-    return re.findall(r"\b[A-Z][a-z]+\b", claim)
+EVENT_PATTERNS = [
+    "died","dead","killed","visit","visited","arrived","landed",
+    "tour","attack","explosion","concert","came to","event",
+    "announced","declared","appeared","met","presented"
+]
 
-# ================= GNEWS =================
 
-def fetch_gnews(claim):
+# -----------------------------------------------
+# util functions
+# -----------------------------------------------
+
+def extract_keywords(claim):
+    words=re.findall(r"[A-Za-z]+",claim.lower())
+    return [w for w in words if w not in STOPWORDS][:4]
+
+
+def classify_claim(claim):
+    t=claim.lower()
+    if any(p in t for p in EVENT_PATTERNS):
+        return "event"
+    return "fact"
+
+
+# -----------------------------------------------
+# save local archive
+# -----------------------------------------------
+
+def update_local_csv(claim,ev):
+    exists=os.path.exists(LOCAL_CSV)
+    with open(LOCAL_CSV,"a",newline="",encoding="utf8") as f:
+        w=csv.writer(f)
+        if not exists:
+            w.writerow(["timestamp","claim","source","text","trust"])
+        w.writerow([
+            datetime.utcnow().isoformat(),
+            claim,
+            ev["source"],
+            ev["text"],
+            ev["trust"],
+        ])
+
+
+# -----------------------------------------------
+# EVENT SEARCH – NEWSDATA.IO
+# -----------------------------------------------
+
+def search_newsio(claim):
+
+    evidences=[]
+    q="+".join(extract_keywords(claim))
+
+    url=f"https://newsdata.io/api/1/latest?apikey={NEWSIO_KEY}&q={q}&language=en"
+
     try:
-        query = " ".join(extract_entities(claim))
-        r = requests.get(
-            "https://gnews.io/api/v4/search",
-            params={"q": query, "lang": "en", "max": 5, "token": GNEWS_API_KEY},
-            timeout=10
-        )
-        r.raise_for_status()
-        return [
-            {
-                "source": a["source"]["name"],
-                "text": a.get("description","") + " " + a.get("content",""),
-                "trust_score": 0.85
-            }
-            for a in r.json().get("articles", [])
-        ]
-    except Exception as e:
-        print("[GNEWS ERROR]", e)
-        return []
+        r=requests.get(url,headers=HEADERS,timeout=8)
+        js=r.json()
 
-# ================= NEWSDATA (NewsIO) =================
+        for art in js.get("results",[])[:10]:
+            txt=(art.get("title","")+" "+art.get("description",""))
+            evidences.append({
+                "source":art.get("source_id","newsio"),
+                "text":txt,
+                "trust":0.70
+            })
+    except:
+        pass
 
-def fetch_newsdata(claim):
-    try:
-        url = (
-            f"https://newsdata.io/api/1/latest"
-            f"?apikey={NEWSDATA_API_KEY}"
-            f"&q={urllib.parse.quote(claim)}"
-            f"&language=en"
-            f"&removeduplicate=1"
-        )
-        r = requests.get(url, timeout=10)
-        r.raise_for_status()
-        return [
-            {
-                "source": i.get("source_id","newsdata"),
-                "text": f"{i.get('title','')} {i.get('description','')}",
-                "trust_score": 0.85
-            }
-            for i in r.json().get("results", [])
-        ]
-    except Exception as e:
-        print("[NEWSDATA ERROR]", e)
-        return []
-
-# ================= WIKIPEDIA =================
-
-def fetch_wikipedia(claim):
-    evidences = []
-    r = requests.get(
-        "https://en.wikipedia.org/w/api.php",
-        params={"action":"query","list":"search","srsearch":claim,"format":"json"},
-        headers=HEADERS
-    )
-    r.raise_for_status()
-    for res in r.json()["query"]["search"][:2]:
-        title = res["title"].replace(" ","_")
-        page = requests.get(f"https://en.wikipedia.org/wiki/{title}", headers=HEADERS)
-        soup = BeautifulSoup(page.text,"html.parser")
-        evidences.append({
-            "source": "wikipedia",
-            "text": soup.get_text(" ",strip=True)[:2000],
-            "trust_score": 0.75
-        })
     return evidences
 
-# ================= PROVENANCE =================
 
-def detect_provenance(claim, claim_type, text):
-    t = text.lower()
 
-    if claim_type == "death_claim":
-        if any(w in t for w in ["died","killed","shot"]):
-            return {"type":"supporting","score":1.0}
-        return {"type":"contradicting","score":0.0}
+# -----------------------------------------------
+# EVENT SEARCH – GNEWS
+# -----------------------------------------------
 
-    ents = extract_entities(claim)
-    if all(e.lower() in t for e in ents):
-        return {"type":"neutral","score":0.4}
+def search_gnews(claim):
 
-    return {"type":"neutral","score":0.2}
+    evidences=[]
+    q=" ".join(extract_keywords(claim))
 
-# ================= LOCAL CSV =================
-
-def store_csv(claim, ev):
-    exists = os.path.exists(LOCAL_CSV)
-    with open(LOCAL_CSV,"a",newline="",encoding="utf-8") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["claim","source","trust_score","prov_type","prov_score","timestamp"]
-        )
-        if not exists:
-            writer.writeheader()
-        writer.writerow({
-            "claim": claim,
-            "source": ev["source"],
-            "trust_score": ev["trust_score"],
-            "prov_type": ev["provenance"]["type"],
-            "prov_score": ev["provenance"]["score"],
-            "timestamp": datetime.utcnow().isoformat()
-        })
-
-# ================= MAIN ENTRY =================
-
-def retrieve_evidence(claim):
-    claim_type = classify_claim(claim)
-    evidences = []
-
-    if claim_type == "current_event":
-        evidences += fetch_gnews(claim)
-        evidences += fetch_newsdata(claim)
-        top_n = TOP_N_EVENT
-
-    elif claim_type == "static_fact":
-        evidences += fetch_newsdata(claim)
-        evidences += fetch_wikipedia(claim)
-        top_n = TOP_N_FACT
-
-    elif claim_type == "death_claim":
-        evidences += fetch_gnews(claim)
-        evidences += fetch_newsdata(claim)
-        evidences += fetch_wikipedia(claim)
-        top_n = TOP_N_EVENT
-
-    else:
-        return {"claim":claim,"claim_type":claim_type,"evidence":[]}
-
-    # relevance filtering
-    for e in evidences:
-        e["relevance"] = relevance_score(claim, e["text"])
-
-    evidences = sorted(evidences, key=lambda x: x["relevance"], reverse=True)[:top_n]
-
-    # provenance + store
-    for e in evidences:
-        e["provenance"] = detect_provenance(claim, claim_type, e["text"])
-        store_csv(claim, e)
-
-    return {
-        "claim": claim,
-        "claim_type": claim_type,
-        "evidence": evidences
+    params={
+        "q":q,
+        "lang":"en",
+        "max":10,
+        "token":GNEWS_KEY
     }
 
-# ================= DEMO =================
+    try:
+        r=requests.get("https://gnews.io/api/v4/search",
+                       headers=HEADERS,params=params,timeout=8)
 
-if __name__ == "__main__":
-    c = " Lionel Messi arrived in Kolkata on December 13, 2025, to kick off the GOAT India Tour 2025."
-    print(json.dumps(retrieve_evidence(c), indent=2))
+        for art in r.json().get("articles",[]):
+            txt=(art.get("description","")+" "+art.get("content",""))
+            evidences.append({
+                "source":art.get("source",{}).get("name","gnews"),
+                "text":txt,
+                "trust":0.85
+            })
+    except:
+        pass
+
+    return evidences
+
+
+
+# -----------------------------------------------
+# FACT SOURCE – GOOGLE FACT CHECK
+# -----------------------------------------------
+
+def search_google_factcheck(claim):
+
+    evidences=[]
+    q=urllib.parse.quote(claim)
+
+    url=f"https://factchecktools.googleapis.com/v1alpha1/claims:search?key={GOOGLE_FACT_KEY}&query={q}"
+
+    try:
+        r=requests.get(url,timeout=8)
+        js=r.json()
+
+        for c in js.get("claims",[])[:8]:
+            txt=c.get("text","")+" "+c.get("claimReview",[{}])[0].get("title","")
+            evidences.append({
+                "source":"google_fact_check",
+                "text":txt,
+                "trust":0.90
+            })
+    except:
+        pass
+
+    return evidences
+
+
+
+# -----------------------------------------------
+# FACT SOURCE – WIKIPEDIA
+# -----------------------------------------------
+
+def search_wiki(claim):
+
+    evidences=[]
+    params={
+        "action":"query",
+        "list":"search",
+        "srsearch":claim,
+        "format":"json"
+    }
+
+    try:
+        r=requests.get("https://en.wikipedia.org/w/api.php",
+                       params=params,headers=HEADERS,timeout=8)
+
+        for hit in r.json().get("query",{}).get("search",[])[:6]:
+            title = hit["title"]
+
+            page=requests.get(
+                f"https://en.wikipedia.org/wiki/{title.replace(' ','_')}",
+                headers=HEADERS,timeout=8
+            )
+            soup=BeautifulSoup(page.text,"html.parser")
+            content_div = soup.find("div", {"id": "mw-content-text"})
+            if not content_div:
+                continue
+
+            # Remove tables, navboxes, references
+            for tag in content_div.find_all(["table","sup","span"]):
+                tag.decompose()
+
+            text = content_div.get_text(" ", strip=True)
+
+            # ❌ Ignore navigation garbage
+            if "Jump to content" in text or len(text) < 300:
+                continue
+
+            evidences.append({
+                "source":"wikipedia.org",
+                "text":text[:1500],
+                "trust":0.75
+            })
+    except:
+        pass
+
+    return evidences
+
+
+
+# -----------------------------------------------
+# RANK BY SEMANTIC SIMILARITY
+# -----------------------------------------------
+
+def rank_evidence(claim,evidences,k=10):
+
+    if not EMBED:
+        return evidences[:k]
+
+    claim_vec = MODEL.encode(claim,convert_to_tensor=True)
+
+    ranked=[]
+
+    for ev in evidences:
+        try:
+            vec = MODEL.encode(ev["text"],convert_to_tensor=True)
+            sim = util.cos_sim(claim_vec,vec).item()
+            ranked.append((sim,ev))
+        except:
+            continue
+
+    ranked=sorted(ranked,key=lambda x:x[0],reverse=True)
+    return [ev for sim,ev in ranked[:k]]
+
+
+
+# -----------------------------------------------
+# MAIN ENTRYPOINT
+# -----------------------------------------------
+
+def retrieve_evidence(claim,k=10):
+
+    claim_type = classify_claim(claim)
+
+    evidences=[]
+
+    if claim_type=="event":
+        evidences+=search_newsio(claim)
+        evidences+=search_gnews(claim)
+    else:
+        evidences+=search_google_factcheck(claim)
+        evidences+=search_wiki(claim)
+
+    if not evidences:
+        return [], claim_type
+
+    best = rank_evidence(claim,evidences,k)
+
+    for ev in best:
+        update_local_csv(claim,ev)
+
+    return best, claim_type

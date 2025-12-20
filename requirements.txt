@@ -1,12 +1,4 @@
-# Core
-python-dotenv
-numpy
-pandas
-scikit-learn
-tqdm
 
-# Streamlit App
-streamlit
 
 # FastAPI + Multipart support
 fastapi
@@ -23,14 +15,11 @@ regex
 openai-whisper
 ffmpeg-python
 
-# Audio Processing
-librosa
-soundfile
 
 # Image Processing
 opencv-python
 Pillow
-imagehash
+
 
 # OCR
 pytesseract
@@ -38,10 +27,9 @@ pytesseract
 # Web Scraping / Requests
 requests
 beautifulsoup4
-lxml
+
 
 # Utilities
 joblib
-matplotlib
-seaborn
+
 
