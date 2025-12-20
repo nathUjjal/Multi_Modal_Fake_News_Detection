@@ -1,161 +1,171 @@
-# 📰 Fake News Detection System
+# 🧠 Multimodal Fake News Detection System
 
-A **multimodal AI-powered system** that detects fake news from **text, images, and videos**.
-Built as an **MCA Minor Project** using **Transformers, OpenAI Whisper, ImageHash, and Streamlit**.
+This project implements a **multimodal fake news detection system** capable of analyzing **text, images, videos, and web links**.  
+It extracts verifiable claims, retrieves evidence from trusted sources, evaluates semantic similarity, and produces an explainable credibility verdict.
 
----
-
-## 📌 Project Overview
-
-Fake news is a growing problem in today’s world, especially with the rapid spread of misinformation through social media.
-This project aims to build an **automated system** that can analyze **text, photos, and videos** to classify whether the news content is **real or fake**.
+The system is designed as an **academic MCA-level project**, focusing on modularity, explainability, and real NLP techniques.
 
 ---
 
-## 🎯 Features
+## 📌 System Overview
 
-* ✅ **Text Fake News Detection** using NLP & Transformers (DistilBERT)
-* ✅ **Image Verification** using perceptual hashing & reverse search APIs
-* ✅ **Video Analysis** by extracting audio → speech-to-text → text classifier
-* ✅ **User-Friendly Web App** built with Streamlit
-* ✅ **Confidence Score** for prediction results
+The system follows a unified verification pipeline:
 
----
+**Input → Claim Extraction → Claim Normalization → Evidence Retrieval → Verification → Explanation → Verdict**
 
-## 🛠️ Tech Stack
-
-* **Programming Language:** Python
-* **Libraries & Tools:**
-
-  * Pandas, Scikit-learn
-  * HuggingFace Transformers (DistilBERT)
-  * OpenCV, PIL, ImageHash ,pytessaract
-  * OpenAI Whisper (speech-to-text)
-  * Streamlit (Web UI)
+Supported input types:
+- 📝 Text
+- 🖼️ Image
+- 🎥 Video
+- 🔗 News / social media links
 
 ---
 
-## 👥 Team Members & Responsibilities
+## 🏗️ Project Structure
 
-* **Member 1:** Dataset collection & preprocessing (text news data)
-* **Member 2:** Text fake news detection (Transformer-based model)
-* **Member 3:** Image verification (ImageHash & reverse search)
-* **Member 4:** Video analysis (frame extraction + Whisper)
-* **Member 5:** Integration & Streamlit app development
-
----
-
-## 📂 Project Structure
-
-```
-fake-news-detection/
-│── data/                        # Datasets
-│   ├── fake_news.csv
-│   └── sample_video.mp4
+Multi_Modal_Fake_News_Detection/
 │
-│── models/                      # Saved ML models
-│   └── text_model/
+├── app/
+│ ├── main.py # FastAPI application entry point
+│ ├── pipeline.py # Central orchestration pipeline
+│ └── init.py
 │
-│── notebooks/                   # Jupyter notebooks for experiments
-│   ├── preprocessing.ipynb
-│   ├── text_model.ipynb
-│   └── video_analysis.ipynb
+├── src/
+│ ├── claim_from_text.py # Claim extraction from text using transformers
+│ ├── claim_from_image.py # OCR + claim extraction from images
+│ ├── claim_from_video.py # Audio extraction + speech-to-text + claim extraction
+│ ├── evidence_retrieval.py# Evidence retrieval from trusted sources
+│ ├── verification.py # Semantic similarity based verification
+│ ├── explanation.py # Explanation generation
+│ └── init.py
 │
-│── app/                         # Streamlit app
-│   ├── app.py
-│   └── utils.py
+├── utils/
+│ ├── scrap_text_from_link.py # Web article text extraction
+│ ├── claim_normalizer.py # Claim cleaning and query normalization
+│ └── init.py
 │
-│── requirements.txt             # Dependencies
-│── README.md                    # Project documentation
-```
+├── uploads/ # Temporary storage for uploaded files
+├── requirements.txt
+└── README.md
+
+yaml
+Copy code
 
 ---
 
-## ⚙️ Installation & Setup
+## 🔁 Processing Pipeline
 
-### 1️⃣ Clone the repository
+### 1️⃣ Input Handling
+- Handled via **FastAPI** (`app/main.py`)
+- Accepts text, file uploads, or URLs
+- Routes input based on modality
 
-```bash
-git clone https://github.com/your-username/fake-news-detection.git
-cd fake-news-detection
-```
+---
 
-### 2️⃣ Create virtual environment (optional but recommended)
+### 2️⃣ Claim Extraction
+| Modality | Method |
+|--------|--------|
+| Text | Abstractive summarization using transformer models |
+| Image | OCR → summarized claim |
+| Video | Audio extraction → speech-to-text → summarized claim |
+| Link | Web scraping → summarized claim |
 
-```bash
-python -m venv venv
-source venv/bin/activate   # For Linux/Mac
-venv\Scripts\activate      # For Windows
-```
+Goal: extract a **short, factual, verifiable claim**.
 
-### 3️⃣ Install dependencies
+---
 
-```bash
+### 3️⃣ Claim Normalization
+- Removes noise and extra clauses
+- Keeps claims within API length limits
+- Relaxes queries when evidence retrieval fails
+
+---
+
+### 4️⃣ Evidence Retrieval
+- Queries Wikipedia and trusted sources
+- Extracts multiple evidence snippets
+- Assigns trust scores per source
+
+---
+
+### 5️⃣ Claim Verification
+- Uses **semantic similarity** (Sentence Transformers)
+- Compares extracted claim with retrieved evidence
+- Outputs similarity score and verdict label
+
+Possible labels:
+- **Supported**
+- **Refuted**
+- **Uncertain**
+
+---
+
+### 6️⃣ Explanation Generation
+- Selects the strongest evidence
+- Produces a human-readable explanation
+- Explains why a claim is real, fake, or uncertain
+
+---
+
+### 7️⃣ Final Output
+json
+{
+  "claim": "Narendra Modi is President of Bihar",
+  "verdict": "Fake",
+  "confidence": 0.23,
+  "explanation": "Evidence contradicts the claim..."
+}
+###🚀 How to Run the Project
+1️⃣ Install dependencies
+bash
+Copy code
 pip install -r requirements.txt
-```
+2️⃣ Start the FastAPI server
+bash
+Copy code
+uvicorn app.main:app --reload
+3️⃣ Access the API
+cpp
+Copy code
+http://127.0.0.1:8000
+###🎯 Key Features
+Multimodal fake news analysis
 
-### 4️⃣ Run the Streamlit app
+Modular and extensible architecture
 
-```bash
-cd app
-streamlit run app.py
-```
+Semantic (meaning-based) verification
 
----
+Explainable AI outputs
 
-## 🚀 How It Works
+Academic-project friendly design
 
-1. **Text Input:** User enters news text → NLP model classifies as Fake/Real.
-2. **Image Input:** User uploads an image → System checks perceptual hash & verifies authenticity.
-3. **Video Input:** System extracts audio → converts to text using Whisper → passes transcript to NLP model.
+###⚠️ Limitations
+Evidence retrieval mainly relies on Wikipedia
 
----
+OCR and speech-to-text accuracy depends on input quality
 
-## 📸 Screenshots (To be added)
+No social media metadata analysis
 
-* [ ] App Homepage
-* [ ] Text Fake News Detection Example
-* [ ] Image Verification Example
-* [ ] Video Transcript Classification
+Claim extraction uses summarization instead of fine-tuned claim models
 
----
+###🔮 Future Enhancements
+Zero-shot and NLI-based verification
 
-## 📊 Expected Outcomes
+Source credibility and social context scoring
 
-* Higher accuracy in detecting fake vs real news.
-* Multimodal analysis for **text + image + video** news content.
-* A usable **Streamlit app** that demonstrates fake news detection in real time.
+Multilingual support
 
----
+Knowledge graph integration
 
-## 🌍 Applications
+Fine-tuned claim extraction models
 
-* Fake news detection for social media posts
-* Academic research on misinformation
-* Integration with fact-checking APIs
-* Awareness tool for the public
+###🎓 Intended Use
+This project is intended for:
 
----
+MCA / academic final-year projects
 
-## 🔮 Future Scope
+Research demonstrations
 
-* Improve accuracy with fine-tuned models on larger datasets
-* Integrate real-time **Fact-Check APIs** (e.g., Google Fact Check API)
-* Expand to **multilingual fake news detection**
-* Deploy as a cloud-based web service
+Learning multimodal NLP pipelines
 
----
-
-## 📚 References
-
-* [Kaggle Fake News Dataset](https://www.kaggle.com/c/fake-news/data)
-* [HuggingFace Transformers](https://huggingface.co/docs/transformers/index)
-* [OpenAI Whisper](https://github.com/openai/whisper)
-* [Streamlit](https://docs.streamlit.io/)
-* [ImageHash](https://pypi.org/project/ImageHash/)
-
----
-
-👨‍💻 **Developed by MCA Students as part of Minor Project**
-
----
+It is not intended for production deployment.
