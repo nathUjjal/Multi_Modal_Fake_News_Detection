@@ -77,64 +77,74 @@ Possible labels:
 ---
 
 ### 7️⃣ Final Output
-json
+
+```json
 {
   "claim": "Narendra Modi is President of Bihar",
   "verdict": "Fake",
   "confidence": 0.23,
   "explanation": "Evidence contradicts the claim..."
 }
-###🚀 How to Run the Project
--#1️⃣ Install dependencies
--bash
--Copy code
--pip install -r requirements.txt
--#2️⃣ Start the FastAPI server
--bash
--Copy code
--uvicorn app.main:app --reload
--#3️⃣ Access the API
--cpp
--Copy code
--http://127.0.0.1:8000
-###🎯 Key Features
-Multimodal fake news analysis
+```
 
-Modular and extensible architecture
+---
 
-Semantic (meaning-based) verification
+### 🚀 How to Run the Project
 
-Explainable AI outputs
+1. **Install dependencies**
 
-Academic-project friendly design
+```bash
+pip install -r requirements.txt
+```
 
-###⚠️ Limitations
-Evidence retrieval mainly relies on Wikipedia
+2. **Start the FastAPI server**
 
-OCR and speech-to-text accuracy depends on input quality
+```bash
+uvicorn app.main:app --reload
+```
 
-No social media metadata analysis
+3. **Access the API**
 
-Claim extraction uses summarization instead of fine-tuned claim models
+Open your browser or use curl:
 
-###🔮 Future Enhancements
-Zero-shot and NLI-based verification
+```text
+http://127.0.0.1:8000
+```
 
-Source credibility and social context scoring
+---
 
-Multilingual support
+### 🎯 Key Features
 
-Knowledge graph integration
+- **Multimodal**: text, image, video, and link processing
+- **Modular & extensible** architecture
+- **Semantic verification** using sentence embeddings
+- **Explainable** outputs with evidence and reasoning
+- **Academic-project friendly** (easy to extend and experiment)
 
-Fine-tuned claim extraction models
+---
 
-###🎓 Intended Use
-This project is intended for:
+### ⚠️ Limitations
 
-MCA / academic final-year projects
+- Evidence retrieval primarily relies on **Wikipedia** and similar sources
+- OCR and speech-to-text performance depends on input quality
+- No social-media metadata or network-based analysis yet
+- Claim extraction uses general summarization (not fine-tuned claim models)
 
-Research demonstrations
+---
 
-Learning multimodal NLP pipelines
+### 🔮 Future Enhancements
 
-It is not intended for production deployment.
+- Zero-shot and NLI-based verification
+- Source credibility and social-context scoring
+- Multilingual support
+- Knowledge-graph integration for richer evidence linking
+- Fine-tuned claim extraction models
+
+---
+
+### 🎓 Intended Use
+
+- MCA / academic final-year projects
+- Research demonstrations and learning multimodal NLP pipelines
+
+> Not intended for production deployment..
